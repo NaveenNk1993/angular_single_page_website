@@ -35,7 +35,9 @@
 .hero-visual { position: relative; min-width: 0; width: 100%; max-width: 425px; justify-self: end; padding: 16px; border: 1px solid #eee8e3; border-radius: 28px; background: #fff; box-shadow: 0 24px 60px rgba(43, 35, 29, .12); }
 .hero-image-frame { height: 525px; overflow: hidden; border-radius: 18px; background: #d7ccc4; }
 .hero-image-frame img { width: 100%; height: 100%; display: block; object-fit: cover; object-position: center; }
-.rating-card { position: absolute; left: -32px; bottom: 48px; width: max-content; min-height: 86px; display: flex; align-items: center; gap: 16px; padding: 16px 22px; border: 1px solid #eee8e3; border-radius: 17px; background: #fff; box-shadow: 0 14px 36px rgba(43, 35, 29, .12); }
+.rating-card { position: absolute; left: -32px; bottom: 48px; width: max-content; min-height: 86px; display: flex; align-items: center; gap: 16px; padding: 16px 22px; border: 1px solid #eee8e3; border-radius: 17px; background: #fff; box-shadow: 0 14px 36px rgba(43, 35, 29, .12); cursor: grab; touch-action: none; user-select: none; }
+.rating-card.is-dragging { cursor: grabbing; }
+.rating-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 .rating-score { color: var(--accent); font: 600 29px/1 var(--font-serif); }
 .rating-card div { display: grid; gap: 4px; }
 .rating-card div strong { color: var(--ink); font-size: 14px; }

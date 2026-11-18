@@ -9,6 +9,13 @@ interface ChatMessage {
   actionHref?: string;
 }
 
+interface RatingBounds {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+}
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -33,6 +40,15 @@ export class AppComponent {
 
   submitted = false;
 
+  ratingOffsetX = 0;
+  ratingOffsetY = 0;
+  isRatingDragging = false;
+  private ratingPointerStartX = 0;
+  private ratingPointerStartY = 0;
+  private ratingDragStartX = 0;
+  private ratingDragStartY = 0;
+  private ratingDragBounds: RatingBounds = { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+
   isChatOpen = false;
   chatInput = '';
   chatSuggestions = ['What services do you offer?', 'How do I start a project?'];
@@ -45,6 +61,86 @@ export class AppComponent {
 
   onSubmit() {
     this.submitted = true;
+  }
+
+  startRatingDrag(event: PointerEvent) {
+    if (event.button !== 0) {
+      return;
+    }
+
+    const card = event.currentTarget as HTMLElement;
+    card.setPointerCapture(event.pointerId);
+    this.isRatingDragging = true;
+    this.ratingPointerStartX = event.clientX;
+    this.ratingPointerStartY = event.clientY;
+    this.ratingDragStartX = this.ratingOffsetX;
+    this.ratingDragStartY = this.ratingOffsetY;
+    this.ratingDragBounds = this.getRatingBounds(card);
+  }
+
+  moveRatingDrag(event: PointerEvent) {
+    if (!this.isRatingDragging) {
+      return;
+    }
+
+    this.applyRatingOffset(
+      this.ratingDragStartX + event.clientX - this.ratingPointerStartX,
+      this.ratingDragStartY + event.clientY - this.ratingPointerStartY,
+      this.ratingDragBounds
+    );
+  }
+
+  endRatingDrag() {
+    this.isRatingDragging = false;
+  }
+
+  moveRatingCardWithKeyboard(event: KeyboardEvent) {
+    const movement = 12;
+    const directions: Record<string, [number, number]> = {
+      ArrowLeft: [-movement, 0],
+      ArrowRight: [movement, 0],
+      ArrowUp: [0, -movement],
+      ArrowDown: [0, movement]
+    };
+    const direction = directions[event.key];
+
+    if (!direction) {
+      return;
+    }
+
+    event.preventDefault();
+    this.setRatingOffset(
+      event.currentTarget as HTMLElement,
+      this.ratingOffsetX + direction[0],
+      this.ratingOffsetY + direction[1]
+    );
+  }
+
+  private setRatingOffset(card: HTMLElement, x: number, y: number) {
+    this.applyRatingOffset(x, y, this.getRatingBounds(card));
+  }
+
+  private getRatingBounds(card: HTMLElement): RatingBounds {
+    const parent = card.parentElement;
+    if (!parent) {
+      return this.ratingDragBounds;
+    }
+
+    const parentBounds = parent.getBoundingClientRect();
+    const cardBounds = card.getBoundingClientRect();
+    const baseLeft = cardBounds.left - this.ratingOffsetX;
+    const baseTop = cardBounds.top - this.ratingOffsetY;
+    return {
+      minX: Math.min(0, parentBounds.left - baseLeft),
+      maxX: parentBounds.right - cardBounds.width - baseLeft,
+      minY: Math.min(0, parentBounds.top - baseTop),
+      maxY: parentBounds.bottom - cardBounds.height - baseTop
+    };
+  }
+
+  private applyRatingOffset(x: number, y: number, bounds: RatingBounds) {
+    this.ratingOffsetX = Math.min(bounds.maxX, Math.max(bounds.minX, x));
+    this.ratingOffsetY = Math.min(bounds.maxY, Math.max(bounds.minY, y));
   }
 
   sendChatMessage(message = this.chatInput) {

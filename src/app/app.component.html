@@ -37,7 +37,20 @@
         <div class="hero-image-frame">
           <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&amp;fit=crop&amp;w=1200&amp;q=85" alt="Sculptural modern interior with warm wood and soft natural light">
         </div>
-        <div class="rating-card">
+        <div
+          class="rating-card"
+          [class.is-dragging]="isRatingDragging"
+          [style.transform]="'translate3d(' + ratingOffsetX + 'px, ' + ratingOffsetY + 'px, 0)'"
+          role="group"
+          tabindex="0"
+          aria-label="Client rating 4.9. Drag to reposition, or use the arrow keys."
+          aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
+          (pointerdown)="startRatingDrag($event)"
+          (pointermove)="moveRatingDrag($event)"
+          (pointerup)="endRatingDrag()"
+          (pointercancel)="endRatingDrag()"
+          (lostpointercapture)="endRatingDrag()"
+          (keydown)="moveRatingCardWithKeyboard($event)">
           <strong class="rating-score">4.9</strong>
           <div><strong>Client rating</strong><span>Across 120 launches since 2017</span></div>
         </div>
